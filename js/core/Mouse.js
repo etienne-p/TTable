@@ -1,17 +1,45 @@
 var Mouse = function(isMobile_) {
 
-	var _position = {x: 0, y: 0},
-		_mouseClickSignal = new Signal(),
+	// mouse move is a special case,
+	// other signals can be generated dynamically
+
+	var _self = {},
+		_data = [{
+			evt: isMobile_ ? 'touchstart' : 'mousedown',
+			as: 'down'
+		}, {
+			evt: isMobile_ ? 'touchend' : 'mouseup',
+			as: 'up'
+		}, {
+			evt: 'click',
+			as: 'click'
+		}],
+		_position = {
+			x: 0,
+			y: 0
+		},
+		_signals = {},
+		_handlers = {},
 		_mouseMoveSignal = new Signal();
 
 	//-- init signals value
-	_mouseClickSignal.value = _position;
 	_mouseMoveSignal.value = _position;
 
-	//-- Event handlers
-	function _mouseClickHandler(e) {
-		_mouseClickSignal.dispatch(_position);
+	// dynamic signals / handlers generation
+	function getHandler(as) {
+		return function(evt) {
+			_signals[as].dispatch(_position);
+		}
 	}
+	var as = null;
+	for (var i = _data.length - 1; i > -1; --i) {
+		as = _data[i].as;
+		_self[as] = _signals[as] = new Signal();
+		_self[as].value = _position;
+		_handlers = getHandler();
+	}
+
+	//-- Event handlers
 
 	function _mouseMoveHandlerRegular(e) {
 		e.preventDefault();
@@ -43,12 +71,11 @@ var Mouse = function(isMobile_) {
 	//-- Exposed
 	_self.enabled = function(val_) {
 		_bind(val_, document, _mouseMoveEvent, _mouseMoveHandler)
-		_bind(val_, document, 'click', _mouseClickHandler)
+		for (var i = _data.length - 1; i > -1; --i) 
+			_bind(val_, document, _data[i].evt, _handlers[_data[i].as])
 	}
 
 	_self.position = _mouseMoveSignal;
-
-	_self.click = _mouseClickSignal;
 
 	return _self;
 }
