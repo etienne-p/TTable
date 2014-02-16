@@ -28,10 +28,10 @@ var main = function() {
 		canvasXOffset = rect.left,
 		canvasYOffset = rect.top,
 		prevPosition,
-		prevAngle = 0,
+		dAngle = 0,
 		motorStrength = 1,
 		userStrength = 0,
-		motorDAngle = 0.02,
+		motorDAngle = 0.01,
 		//userDAngle = 0,
 		dist = GeomUtil.distance;
 
@@ -50,8 +50,7 @@ var main = function() {
 		p = toPolar(TTable.mouse.position.value);
 
 		motorStrength *= 0.9;
-		var dAngle = p.angle - prevPosition.angle;
-		prevAngle += dAngle;
+		dAngle = p.angle - prevPosition.angle;
 		disc.angle += dAngle;
 		prevPosition = p;
 	}
@@ -63,9 +62,9 @@ var main = function() {
 		// inversement, on glisse et le moteur reprend de l'importance
 
 		// il va falloir travailler en coordonnees polaires
-
-		prevAngle = userStrength == 0 ? prevAngle * 0.9 : 0; // represents an accumulation between frames
-		disc.angle += motorDAngle * motorStrength + prevAngle * (1 - userStrength);
+		disc.angle += motorDAngle * motorStrength + dAngle * (1 - userStrength);
+		dAngle *= 0.9; // represents an accumulation between frames
+		
 		disc.render();
 	}
 
@@ -74,7 +73,7 @@ var main = function() {
 	TTable.mouse.up.add(function() {
 		TTable.fps.tick.remove(watchMouse);
 		motorStrength = 1;
-		userStrength = 0;
+		userStrength = 0;		
 	});
 	TTable.mouse.down.add(function() {
 		// TODO: IF HiTS DISC
