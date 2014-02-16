@@ -24,18 +24,19 @@ var main = function() {
 	// mouse control on disc
 
 	// translate mouse
-	var canvasRect = canvas.getBoundingClientRect(),
+	var rect = canvas.getBoundingClientRect(),
 		canvasXOffset = rect.left,
 		canvasYOffset = rect.top,
-		prevPosition = TTable.mouse.position,
+		toPolar = GeomUtil.cartesianToPolar,
+		prevPosition,
 		dist = GeomUtil.distance;
 
 	function moveDisc(mousePosition_) {
-		// translate mouse
-		var p = {
-			x: mousePosition_.x - canvasXOffset,
-			y: mousePosition_.y - canvasYOffset
-		};
+		// translate and change coordinates
+		var p = toPolar({
+			x: mousePosition_.x - canvasXOffset - radius,
+			y: mousePosition_.y - canvasYOffset - radius
+		});
 
 		// extraire l'angle
 
@@ -45,10 +46,21 @@ var main = function() {
 
 		// il va falloir travailler en coordonnees polaires
 
+		disc.angle = p.angle;
+		disc.render();
+
 		prevPosition = p;
 	}
 
-	TTable.mouse.move.add(moveDisc);
+	xxx = TTable.mouse;
+
+	TTable.mouse.up.add(function() {
+		TTable.mouse.position.remove(moveDisc);
+	});
+	TTable.mouse.down.add(function() {
+		prevPosition = toPolar(TTable.mouse.position);
+		TTable.mouse.position.add(moveDisc);
+	});
 }
 
 window.onload = main;

@@ -36,7 +36,7 @@ var Mouse = function(isMobile_) {
 		as = _data[i].as;
 		_self[as] = _signals[as] = new Signal();
 		_self[as].value = _position;
-		_handlers = getHandler();
+		_handlers[as] = getHandler(as);
 	}
 
 	//-- Event handlers
@@ -44,8 +44,8 @@ var Mouse = function(isMobile_) {
 	function _mouseMoveHandlerRegular(e) {
 		e.preventDefault();
 		_position = {
-			x = e.pageX,
-			y = e.pageY
+			x: e.pageX,
+			y: e.pageY
 		};
 		_mouseMoveSignal.dispatch(_position);
 	}
@@ -67,10 +67,9 @@ var Mouse = function(isMobile_) {
 		} else method.call(ctx_, evts_, handler_);
 	}
 
-	//-- Platform dependant config
+	//-- Platform specific config
 	var _mouseMoveHandler = isMobile_ ? _mouseMoveHandlerMobile : _mouseMoveHandlerRegular,
-		_mouseMoveEvent = isMobile_ ? ['touchstart', 'touchmove', 'touchend'] : 'mousemove',
-		_self = {};
+		_mouseMoveEvent = isMobile_ ? ['touchstart', 'touchmove', 'touchend'] : 'mousemove';
 
 	//-- Exposed
 	_self.enabled = function(val_) {

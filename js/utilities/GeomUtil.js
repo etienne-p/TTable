@@ -25,5 +25,12 @@ var GeomUtil = {
 
 	distance: function(xa, ya, xb, yb) {
 		return Math.sqrt((xa - xb) * (xa - xb) + (ya - yb) * (ya - yb));
+	},
+
+	cartesianToPolar: function(p) {
+		return {
+			radius: Math.sqrt(p.x * p.x + p.y * p.y),
+			angle: Math.atan2(p.y, p.x)
+		}
 	}
 };
