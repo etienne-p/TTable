@@ -43,22 +43,26 @@ var Mouse = function(isMobile_) {
 
 	function _mouseMoveHandlerRegular(e) {
 		e.preventDefault();
-		_position.x = e.pageX;
-		_position.y = e.pageY;
+		_position = {
+			x = e.pageX,
+			y = e.pageY
+		};
 		_mouseMoveSignal.dispatch(_position);
 	}
 
 	function _mouseMoveHandlerIPad(e) {
 		e.preventDefault();
-		_position.x = e.originalEvent.targetTouches[0].pageX;
-		_position.y = e.originalEvent.targetTouches[0].pageY;
+		_position = {
+			x: e.originalEvent.targetTouches[0].pageX,
+			y: e.originalEvent.targetTouches[0].pageY
+		};
 		_mouseMoveSignal.dispatch(_position);
 	}
 
 	function _bind(val_, ctx_, evts_, handler_) {
 		var method = val_ ? ctx_.addEventListener : ctx_.removeEventListener;
 		if (Object.prototype.toString.call(evts_) == '[object Array]') {
-			var i = evts_.length,
+			var i = evts_.length;
 			while (i--) method.call(ctx_, evts_[i], handler_);
 		} else method.call(ctx_, evts_, handler_);
 	}
@@ -71,8 +75,9 @@ var Mouse = function(isMobile_) {
 	//-- Exposed
 	_self.enabled = function(val_) {
 		_bind(val_, document, _mouseMoveEvent, _mouseMoveHandler)
-		for (var i = _data.length - 1; i > -1; --i) 
+		for (var i = _data.length - 1; i > -1; --i) {
 			_bind(val_, document, _data[i].evt, _handlers[_data[i].as])
+		}
 	}
 
 	_self.position = _mouseMoveSignal;
