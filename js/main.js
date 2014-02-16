@@ -19,7 +19,7 @@ var main = function() {
 	// TODO: redraw disc on fps IF NEEDED
 
 	// hard part UI movement to disc movement
-	TTable.mouse.enabled(true);
+
 
 	// mouse control on disc
 
@@ -27,40 +27,64 @@ var main = function() {
 	var rect = canvas.getBoundingClientRect(),
 		canvasXOffset = rect.left,
 		canvasYOffset = rect.top,
-		toPolar = GeomUtil.cartesianToPolar,
 		prevPosition,
+		prevAngle = 0,
+		motorStrength = 1,
+		userStrength = 0,
+		motorDAngle = 0.02,
+		//userDAngle = 0,
 		dist = GeomUtil.distance;
 
-	function moveDisc(mousePosition_) {
+	function toPolar(pos) {
+		return GeomUtil.cartesianToPolar({
+			x: pos.x - canvasXOffset - radius,
+			y: pos.y - canvasYOffset - radius
+		})
+	}
+
+	function watchMouse() {
+
+		// TODO: STOP WATCH DOES NOT HiTS DISC
+
 		// translate and change coordinates
-		var p = toPolar({
-			x: mousePosition_.x - canvasXOffset - radius,
-			y: mousePosition_.y - canvasYOffset - radius
-		});
+		p = toPolar(TTable.mouse.position.value);
 
-		// extraire l'angle
+		motorStrength *= 0.9;
+		var dAngle = p.angle - prevPosition.angle;
+		prevAngle += dAngle;
+		disc.angle += dAngle;
+		prevPosition = p;
+	}
+	// extraire l'angle
 
+	function moveDisc() {
 		// la variation de deplacement sur le radius influe sur le controle
 		// plus cette variation est faible plus on garde le controle
 		// inversement, on glisse et le moteur reprend de l'importance
 
 		// il va falloir travailler en coordonnees polaires
 
-		disc.angle = p.angle;
+		prevAngle = userStrength == 0 ? prevAngle * 0.9 : 0; // represents an accumulation between frames
+		disc.angle += motorDAngle * motorStrength + prevAngle * (1 - userStrength);
 		disc.render();
-
-		prevPosition = p;
 	}
 
-	xxx = TTable.mouse;
+	TTable.fps.tick.add(moveDisc);
 
 	TTable.mouse.up.add(function() {
-		TTable.mouse.position.remove(moveDisc);
+		TTable.fps.tick.remove(watchMouse);
+		motorStrength = 1;
+		userStrength = 0;
 	});
 	TTable.mouse.down.add(function() {
-		prevPosition = toPolar(TTable.mouse.position);
-		TTable.mouse.position.add(moveDisc);
+		// TODO: IF HiTS DISC
+		prevPosition = toPolar(TTable.mouse.position.value);
+		userStrength = 1;
+		TTable.fps.tick.add(watchMouse);
 	});
+
+	TTable.fps.enabled(true);
+	TTable.mouse.enabled(true);
 }
 
 window.onload = main;
