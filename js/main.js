@@ -45,12 +45,12 @@ var main = function() {
 
 	// setup disc
 	var info = document.getElementById('info');
-	var canvas = document.createElement('canvas');
-	document.getElementsByTagName('body')[0].appendChild(canvas);
-	var mouse = new Mouse(PlatformUtil.isMobile(), canvas),
+		canvas = document.createElement('canvas'),
+		mouse = new Mouse(PlatformUtil.isMobile(), canvas),
 		disc = new TTable.ui.Disc(canvas),
 		radius = 200;
 
+	document.getElementsByTagName('body')[0].appendChild(canvas);
 	disc.setRadius(radius);
 	disc.render();
 
@@ -58,6 +58,7 @@ var main = function() {
 	var prevPosition,
 		dAngle = 0,
 		motorDAngle = 0.1,
+		pi = Math.PI,
 		setSpeed = function() {},
 		//polar = GeomUtil.cartesianToPolar,
 		dist = GeomUtil.distance;
@@ -70,8 +71,11 @@ var main = function() {
 	}
 
 	function watchMouse() {
+
 		p = polar(mouse.position.value);
-		dAngle = p.angle - prevPosition.angle;
+		dAngle = (p.angle - prevPosition.angle) % (2 * pi);
+		if (dAngle > pi) dAngle -= 2 * pi; 
+		else if (dAngle < -pi) dAngle += 2 * pi; 
 		disc.angle += dAngle;
 		prevPosition = p;
 		disc.render();
@@ -124,6 +128,8 @@ var main = function() {
 			].join('<br />');
 			samplePlayer.setRate(arg);
 		}
+
+		
 	});
 }
 
