@@ -1,24 +1,37 @@
+// left, right: Float32Array
 SamplePlayer = function(left, right) {
+
+	var pos = 0, len = left.length, rate = 1, cRate = 1;
+
+	// interpolation requires accessing samples at potentially Math.ceil((len - 1).546))
+	// make sure that this sample exists
+	left[len] = left[0];
+	right[len] = right[0];
 
 	function processAudio(e) {
 
-		var inBufferL = e.inputBuffer.getChannelData(0),
-			inBufferR = e.inputBuffer.getChannelData(1),
-			outBufferL = e.outputBuffer.getChannelData(0),
+		var outBufferL = e.outputBuffer.getChannelData(0),
 			outBufferR = e.outputBuffer.getChannelData(1),
-			len = outBufferL.length,
-			threshold = self.threshold * 5,
-			smoothness = self.smoothness;
-
-		//--  threshold * Math.sin(Math.atan(smoothness * x))
-		for (var i = 0; i < len; ++i) {
-			outBufferL[i] = threshold * Math.sin(Math.atan(smoothness * inBufferL[i]));
-			outBufferR[i] = threshold * Math.sin(Math.atan(smoothness * inBufferR[i]));
+			bufLen = outBufferL.length,
+			d = rate, // depends on speed
+			alpha = 0.5; // interpolation
+			
+		for (var i = 0; i < bufLen; ++i) {
+			alpha = pos - Math.floor(pos);
+			outBufferL[i] = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
+			outBufferR[i] = 0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]); 
+			// %len: no, just append first sample at buffer end
+			pos = (len + pos + d) % len;
 		}
 	};
 
+	function setRate(arg){
+		rate = arg
+	}
+
 	return {
-		processAudio: processAudio
+		processAudio: processAudio,
+		setRate: setRate
 	}
 
 }

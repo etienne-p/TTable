@@ -27,8 +27,8 @@ audio.loadSample = function(url_, callback_) {
 	req.send();
 }
 
-audio.SamplePlayer = function(left_, right_){
-	
+audio.SamplePlayer = function(left_, right_) {
+
 }
 
 // buffer_ = __audioContext.createBuffer(__loadRequest.response, false);
@@ -107,30 +107,17 @@ var main = function() {
 	// AUDIO
 	audio.loadSample('media/loop.wav', function(buffer) {
 
-		/*interface AudioBuffer {
+		var samplePlayer = new SamplePlayer(buffer.getChannelData(0), buffer.getChannelData(1)),
+			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2);
 
-			readonly attribute float sampleRate;
-			readonly attribute long length;
+		scriptProcessor.onaudioprocess = samplePlayer.processAudio;
+		scriptProcessor.connect(audio.getContext().destination);
 
-			// in seconds 
-			readonly attribute double duration;
-
-			readonly attribute long numberOfChannels;
-
-			Float32Array getChannelData(unsigned long channel);
-
-		};*/
-
-		var bufSource = audio.getContext().createBufferSource();
-		bufSource.buffer = buffer;
-		bufSource.loop = true;
-		bufSource.connect(audio.getContext().destination);
-		bufSource.start(0);
-		console.log('hearing something?');
+		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
 		setSpeed = function(arg) {
 			console.log('set playbackRate: ' + arg);
-			bufSource.playbackRate.value = arg;
+			samplePlayer.setRate(arg);
 		}
 	});
 }
