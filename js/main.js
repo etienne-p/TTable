@@ -27,6 +27,10 @@ audio.loadSample = function(url_, callback_) {
 	req.send();
 }
 
+audio.SamplePlayer = function(left_, right_){
+	
+}
+
 // buffer_ = __audioContext.createBuffer(__loadRequest.response, false);
 // smapler is only responsible for playing a buffer at a given rate
 // filters, gain, are to be handled externally
@@ -52,7 +56,8 @@ var main = function() {
 	// translate mouse
 	var prevPosition,
 		dAngle = 0,
-		motorDAngle = 0.01,
+		motorDAngle = 0.1,
+		setSpeed = function() {},
 		//polar = GeomUtil.cartesianToPolar,
 		dist = GeomUtil.distance;
 
@@ -69,13 +74,16 @@ var main = function() {
 		disc.angle += dAngle;
 		prevPosition = p;
 		disc.render();
+		setSpeed(dAngle / motorDAngle);
 	}
+
 	// extraire l'angle
 
 	function moveDisc() {
 		disc.angle += motorDAngle + dAngle;
 		dAngle *= 0.9; // represents an accumulation between frames
 		disc.render();
+		setSpeed((motorDAngle + dAngle) / motorDAngle);
 	}
 
 	function toEngineControl() {
@@ -98,14 +106,32 @@ var main = function() {
 
 	// AUDIO
 	audio.loadSample('media/loop.wav', function(buffer) {
+
+		/*interface AudioBuffer {
+
+			readonly attribute float sampleRate;
+			readonly attribute long length;
+
+			// in seconds 
+			readonly attribute double duration;
+
+			readonly attribute long numberOfChannels;
+
+			Float32Array getChannelData(unsigned long channel);
+
+		};*/
+
 		var bufSource = audio.getContext().createBufferSource();
 		bufSource.buffer = buffer;
-		//bufSource.loop = true;
-		//bufSource.playbackrate = 1;
+		bufSource.loop = true;
 		bufSource.connect(audio.getContext().destination);
 		bufSource.start(0);
-		//bufSource.noteOn(0);
 		console.log('hearing something?');
+
+		setSpeed = function(arg) {
+			console.log('set playbackRate: ' + arg);
+			bufSource.playbackRate.value = arg;
+		}
 	});
 }
 
