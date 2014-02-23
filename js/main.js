@@ -44,6 +44,7 @@ var main = function() {
 	TTable.fps = new FPS();
 
 	// setup disc
+	var info = document.getElementById('info');
 	var canvas = document.createElement('canvas');
 	document.getElementsByTagName('body')[0].appendChild(canvas);
 	var mouse = new Mouse(PlatformUtil.isMobile(), canvas),
@@ -93,6 +94,7 @@ var main = function() {
 	}
 
 	function toUserControl() {
+		dAngle = 0;
 		prevPosition = polar(mouse.position.value);
 		TTable.fps.tick.remove(moveDisc);
 		TTable.fps.tick.add(watchMouse);
@@ -116,7 +118,10 @@ var main = function() {
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
 		setSpeed = function(arg) {
-			console.log('set playbackRate: ' + arg);
+			info.innerHTML = [
+			'playbackRate: ' + arg,
+			'dAngle: ' + dAngle
+			].join('<br />');
 			samplePlayer.setRate(arg);
 		}
 	});

@@ -17,12 +17,17 @@ SamplePlayer = function(left, right) {
 			alpha = 0.5; // interpolation
 			
 		for (var i = 0; i < bufLen; ++i) {
+
+			d = (rate - cRate) * (i / bufLen) + cRate
+
 			alpha = pos - Math.floor(pos);
 			outBufferL[i] = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
 			outBufferR[i] = 0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]); 
 			// %len: no, just append first sample at buffer end
 			pos = (len + pos + d) % len;
 		}
+
+		cRate = rate;
 	};
 
 	function setRate(arg){
