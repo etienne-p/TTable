@@ -37,7 +37,7 @@ audio.SamplePlayer = function(left_, right_) {
 
 //-- TODO
 
-var main = function() {
+var testScratch = function() {
 
 	// setup core
 	TTable.mouse = new Mouse(PlatformUtil.isMobile(), document),
@@ -128,9 +128,15 @@ var main = function() {
 			].join('<br />');
 			samplePlayer.setRate(arg);
 		}
+	});
+}
 
-		// canvas to draw a wave on
-		var waveCanvas = document.createElement('canvas');
+var drawSound = function() {
+
+	audio.loadSample('media/loop.wav', function(buffer) {
+
+		var pi = Math.PI,
+			waveCanvas = document.createElement('canvas');
 
 		document.getElementsByTagName('body')[0].appendChild(waveCanvas);
 		waveCanvas.width = 600;
@@ -170,10 +176,7 @@ var main = function() {
 
 		wctx.putImageData(imgData, 0, 0);
 		console.log('done');
-
-
-
 	});
 }
 
-window.onload = main;
+window.onload = drawSound;
