@@ -45,10 +45,10 @@ var main = function() {
 
 	// setup disc
 	var info = document.getElementById('info');
-		canvas = document.createElement('canvas'),
-		mouse = new Mouse(PlatformUtil.isMobile(), canvas),
-		disc = new TTable.ui.Disc(canvas),
-		radius = 200;
+	canvas = document.createElement('canvas'),
+	mouse = new Mouse(PlatformUtil.isMobile(), canvas),
+	disc = new TTable.ui.Disc(canvas),
+	radius = 200;
 
 	document.getElementsByTagName('body')[0].appendChild(canvas);
 	disc.setRadius(radius);
@@ -74,8 +74,8 @@ var main = function() {
 
 		p = polar(mouse.position.value);
 		dAngle = (p.angle - prevPosition.angle) % (2 * pi);
-		if (dAngle > pi) dAngle -= 2 * pi; 
-		else if (dAngle < -pi) dAngle += 2 * pi; 
+		if (dAngle > pi) dAngle -= 2 * pi;
+		else if (dAngle < -pi) dAngle += 2 * pi;
 		disc.angle += dAngle;
 		prevPosition = p;
 		disc.render();
@@ -117,19 +117,62 @@ var main = function() {
 			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2);
 
 		scriptProcessor.onaudioprocess = samplePlayer.processAudio;
-		scriptProcessor.connect(audio.getContext().destination);
+		//scriptProcessor.connect(audio.getContext().destination);
 
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
 		setSpeed = function(arg) {
 			info.innerHTML = [
-			'playbackRate: ' + arg,
-			'dAngle: ' + dAngle
+				'playbackRate: ' + arg,
+				'dAngle: ' + dAngle
 			].join('<br />');
 			samplePlayer.setRate(arg);
 		}
 
-		
+		// canvas to draw a wave on
+		var waveCanvas = document.createElement('canvas');
+
+		document.getElementsByTagName('body')[0].appendChild(waveCanvas);
+		waveCanvas.width = 600;
+		waveCanvas.height = 600;
+
+		var wctx = waveCanvas.getContext('2d'),
+			imgData = wctx.createImageData(600, 600),
+			data = imgData.data;
+
+		// bind me! set RED pixel
+		function setPixel(r, g, b, a, x, y) {
+			var index = (y * 600 + x) * 4;
+			data[index] = r;
+			data[index + 1] = g;
+			data[index + 2] = b;
+			data[index + 3] = a;
+		}
+
+		var audioData = buffer.getChannelData(0),
+			audioLen = audioData.length,
+			i = 0,
+			dA = 0.005,
+			x, y, a, rad,
+			len = Math.floor((2 * pi) / dA);
+
+		function ampAt(ratio) {
+			return audioData[Math.round(ratio * (audioLen - 1))]
+		}
+
+		for (i = 0; i < len; ++i) {
+			a = dA * i;
+			rad = 150 + 60 * ampAt(i / (len - 1));
+			x = Math.round(300 + rad * Math.cos(a)); // offset to center
+			y = Math.round(300 + rad * Math.sin(a));
+			setPixel(255, 0, 0, 255, x, y)
+		}
+
+		wctx.putImageData(imgData, 0, 0);
+		console.log('done');
+
+
+
 	});
 }
 
