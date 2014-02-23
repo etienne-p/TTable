@@ -1,4 +1,4 @@
-var Mouse = function(isMobile_) {
+var Mouse = function(isMobile_, element_) {
 
 	// mouse move is a special case,
 	// other signals can be generated dynamically
@@ -20,7 +20,9 @@ var Mouse = function(isMobile_) {
 		},
 		_signals = {},
 		_handlers = {},
-		_mouseMoveSignal = new Signal();
+		_mouseMoveSignal = new Signal(),
+		_xOffset = 0,
+		_yOffset = 0;
 
 	//-- init signals value
 	_mouseMoveSignal.value = _position;
@@ -39,13 +41,22 @@ var Mouse = function(isMobile_) {
 		_handlers[as] = getHandler(as);
 	}
 
+	//...
+
+	function _updateOffset(){
+		if (!element_.getBoundingClientRect) return;
+		var rect = element_.getBoundingClientRect();
+		_xOffset = rect.left;
+		_yOffset = rect.top;
+	}
+
 	//-- Event handlers
 
 	function _mouseMoveHandlerRegular(e) {
 		e.preventDefault();
 		_position = {
-			x: e.pageX,
-			y: e.pageY
+			x: e.pageX - _xOffset,
+			y: e.pageY - _yOffset
 		};
 		_mouseMoveSignal.dispatch(_position);
 	}
@@ -53,8 +64,8 @@ var Mouse = function(isMobile_) {
 	function _mouseMoveHandlerIPad(e) {
 		e.preventDefault();
 		_position = {
-			x: e.originalEvent.targetTouches[0].pageX,
-			y: e.originalEvent.targetTouches[0].pageY
+			x: e.originalEvent.targetTouches[0].pageX - _xOffset,
+			y: e.originalEvent.targetTouches[0].pageY - _yOffset
 		};
 		_mouseMoveSignal.dispatch(_position);
 	}
@@ -73,10 +84,11 @@ var Mouse = function(isMobile_) {
 
 	//-- Exposed
 	_self.enabled = function(val_) {
-		_bind(val_, document, _mouseMoveEvent, _mouseMoveHandler)
+		_bind(val_, element_, _mouseMoveEvent, _mouseMoveHandler)
 		for (var i = _data.length - 1; i > -1; --i) {
-			_bind(val_, document, _data[i].evt, _handlers[_data[i].as])
+			_bind(val_, element_, _data[i].evt, _handlers[_data[i].as])
 		}
+		if (val_) _updateOffset();
 	}
 
 	_self.position = _mouseMoveSignal;
