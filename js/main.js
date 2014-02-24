@@ -40,14 +40,14 @@ audio.SamplePlayer = function(left_, right_) {
 var testScratch = function() {
 
 	// setup core
-	TTable.mouse = new Mouse(PlatformUtil.isMobile(), document),
-	TTable.fps = new FPS();
+	TTable.mouse = new core.Mouse(PlatformUtil.isMobile(), document),
+	TTable.fps = new core.FPS();
 
 	// setup disc
 	var info = document.getElementById('info');
 	canvas = document.createElement('canvas'),
-	mouse = new Mouse(PlatformUtil.isMobile(), canvas),
-	disc = new TTable.ui.Disc(canvas),
+	mouse = new core.Mouse(util.PlatformUtil.isMobile(), canvas),
+	disc = new ui.Disc(canvas),
 	radius = 200;
 
 	document.getElementsByTagName('body')[0].appendChild(canvas);
@@ -61,10 +61,10 @@ var testScratch = function() {
 		pi = Math.PI,
 		setSpeed = function() {},
 		//polar = GeomUtil.cartesianToPolar,
-		dist = GeomUtil.distance;
+		dist = util.GeomUtil.distance;
 
 	function polar(pos) {
-		return GeomUtil.cartesianToPolar({
+		return util.GeomUtil.cartesianToPolar({
 			x: pos.x - radius, // TODO: find a proper way to manage relative coordinates
 			y: pos.y - radius
 		})
