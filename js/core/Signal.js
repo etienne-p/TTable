@@ -1,13 +1,13 @@
 //-- A very simple signal implementation
-function(ns) {
+(function(ns) {
     ns.Signal = function() {
         this._bindings = [],
         this.value = null;
     }
 
-    Signal.prototype = {
+    ns.Signal.prototype = {
 
-        constructor: Signal,
+        constructor: ns.Signal,
 
         dispatch: function(arg_) {
             var i = this._bindings.length,

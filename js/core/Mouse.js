@@ -1,4 +1,4 @@
-function(ns) {
+(function(ns) {
 	ns.Mouse = function(isMobile_, element_) {
 
 		// mouse move is a special case,
@@ -21,7 +21,7 @@ function(ns) {
 			},
 			_signals = {},
 			_handlers = {},
-			_mouseMoveSignal = new Signal(),
+			_mouseMoveSignal = new core.Signal(),
 			_xOffset = 0,
 			_yOffset = 0;
 
@@ -37,7 +37,7 @@ function(ns) {
 		var as = null;
 		for (var i = _data.length - 1; i > -1; --i) {
 			as = _data[i].as;
-			_self[as] = _signals[as] = new Signal();
+			_self[as] = _signals[as] = new core.Signal();
 			_self[as].value = _position;
 			_handlers[as] = getHandler(as);
 		}
