@@ -94,8 +94,7 @@ window.clearRequestTimeout = function(handle) {
 };
 
 
-
-window.namespace(pathStr) {
+window.namespace = function(pathStr) {
 	var path = pathStr.split('.'),
 		len = path.length,
 		i = 0,

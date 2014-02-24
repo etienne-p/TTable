@@ -9,7 +9,7 @@
 
 	ns.Disc.prototype = {
 
-		constructor: TTable.ui.Disc,
+		constructor: ns.Disc,
 
 		setRadius: function(radius_) {
 			this._canvas.width = this._canvas.height = 2 * (this._radius = radius_);
