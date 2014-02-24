@@ -131,7 +131,7 @@ var testScratch = function() {
 	});
 }
 
-var drawSound = function() {
+var drawSound2d = function() {
 
 	audio.loadSample('media/loop.wav', function(buffer) {
 
@@ -179,4 +179,89 @@ var drawSound = function() {
 	});
 }
 
-window.onload = drawSound;
+var drawSound3d = function() {
+
+	audio.loadSample('media/loop.wav', function(buffer) {
+
+		var pi = Math.PI,
+			canvas = document.createElement('canvas');
+
+		document.getElementsByTagName('body')[0].appendChild(canvas);
+		canvas.width = 600;
+		canvas.height = 600;
+
+		// GL related
+		var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'),
+			glProgram = null,
+			fragmentShader = null,
+			vertexShader = null,
+			vertexPositionAttribute = null,
+			verticeBuffer = null,
+			// others
+			audioData = buffer.getChannelData(0),
+			audioLen = audioData.length,
+			i = 0,
+			dA = 0.005,
+			x, y, a, rad,
+			len = Math.floor((2 * pi) / dA);
+
+		function ampAt(ratio) {
+			return audioData[Math.round(ratio * (audioLen - 1))]
+		}
+
+		// setup GL
+		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		// setup shaders
+		vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		// set shaders source
+		var vs_source = document.getElementById('shader-vs').innerHTML,
+			fs_source = document.getElementById('shader-fs').innerHTML;
+		gl.shaderSource(vertexShader, vs_source);
+		gl.shaderSource(fragmentShader, fs_source);
+		// compile them
+		gl.compileShader(vertexShader);
+		gl.compileShader(fragmentShader);
+		// attach shaders to a program
+		glProgram = gl.createProgram();
+		gl.attachShader(glProgram, vertexShader);
+		gl.attachShader(glProgram, fragmentShader);
+		// link and use that program
+		gl.linkProgram(glProgram);
+		gl.useProgram(glProgram);
+		// delete shaders and program 
+		// TODO: try to delete them right now, does it break?
+		/*gl.deleteShader(vertexShader);
+		gl.deleteShader(fragmentShader);
+		gl.deleteProgram(glProgram);*/
+		// setup buffers
+		var vertices = [];
+		for (i = 0; i < len; ++i) {
+			a = dA * i;
+			rad = 0.8 + 0.2 * ampAt(i / (len - 1));
+			//rad = 0.8;
+			x = rad * Math.cos(a); // offset to center
+			y = rad * Math.sin(a);
+			vertices[3 * i] = x;
+			vertices[(3 * i) + 1] = y;
+			vertices[(3 * i) + 2] = 0;
+		}
+		verticeBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+		// draw
+		vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+		gl.enableVertexAttribArray(vertexPositionAttribute);
+		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
+		gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+		gl.drawArrays(gl.LINE_STRIP, 0, len);
+
+
+
+	});
+}
+
+
+window.onload = drawSound3d;
