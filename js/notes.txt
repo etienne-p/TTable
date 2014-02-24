@@ -1,0 +1,7 @@
+> NAMESPACE:
+looks like myproject.core.stuff
+myproject will change, core.stuff won't
+SO: the namespace function is responsible for
+adding modules to the proper project,
+this way, if we rename the project,
+we doN't edit every module
