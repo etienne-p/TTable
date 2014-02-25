@@ -19,8 +19,13 @@
         }
         </script>
         <script id="shader-fs" type="x-shader/x-fragment">
+        #ifdef GL_ES
+        precision mediump float;
+        #endif
+        const vec2 center = vec2(300.0, 300.0);
         void main(void) {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            float dist = length(gl_FragCoord.xy - center);
+            gl_FragColor =  vec4(1.0 - (dist / 200.0), 0, 0, 1);
         }
         </script>
         

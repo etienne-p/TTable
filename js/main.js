@@ -201,7 +201,7 @@ var drawSound3d = function() {
 			audioData = buffer.getChannelData(0),
 			audioLen = audioData.length,
 			i = 0,
-			dA = 0.005,
+			dA = 0.001,
 			x, y, a, rad,
 			len = Math.floor((2 * pi) / dA);
 
@@ -240,7 +240,7 @@ var drawSound3d = function() {
 		var vertices = [];
 		for (i = 0; i < len; ++i) {
 			a = dA * i;
-			rad = 0.8 + 0.2 * ampAt(i / (len - 1));
+			rad = 0.2 + 0.8 * ampAt(i / (len - 1));
 			//rad = 0.8;
 			x = rad * Math.cos(a); // offset to center
 			y = rad * Math.sin(a);

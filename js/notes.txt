@@ -5,3 +5,8 @@ SO: the namespace function is responsible for
 adding modules to the proper project,
 this way, if we rename the project,
 we doN't edit every module
+
+> TODO: 
+render waveform as an excitable array of particles
+exciter: playhead
+think of a cool fragment shader
