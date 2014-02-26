@@ -246,7 +246,7 @@ var drawSound3d = function() {
 		gl.enableVertexAttribArray(vertexPositionAttribute);
 		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
 		gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-			
+
 		function updateVertices() {
 			for (i = 0; i < len; ++i) {
 				a = dA * i;
@@ -258,6 +258,7 @@ var drawSound3d = function() {
 				vertices[(3 * i) + 2] = 0;
 			}
 
+			// using gl.DYNAMIC_DRAW instead of STATIC_DRAW doesn't seem to make a difference...
 			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
 			gl.drawArrays(gl.LINE_STRIP, 0, len);
 		}
