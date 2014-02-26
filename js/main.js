@@ -40,14 +40,14 @@ audio.SamplePlayer = function(left_, right_) {
 var testScratch = function() {
 
 	// setup core
-	TTable.mouse = new core.Mouse(PlatformUtil.isMobile(), document),
-	TTable.fps = new core.FPS();
+	TTable.mouse = new TTable.Mouse(TTable.PlatformUtil.isMobile(), document),
+	TTable.fps = new TTable.FPS();
 
 	// setup disc
 	var info = document.getElementById('info');
 	canvas = document.createElement('canvas'),
-	mouse = new core.Mouse(util.PlatformUtil.isMobile(), canvas),
-	disc = new ui.Disc(canvas),
+	mouse = new TTable.Mouse(TTable.PlatformUtil.isMobile(), canvas),
+	disc = new TTable.Disc(canvas),
 	radius = 200;
 
 	document.getElementsByTagName('body')[0].appendChild(canvas);
@@ -183,88 +183,16 @@ var drawSound3d = function() {
 
 	audio.loadSample('media/loop.wav', function(buffer) {
 
-		var pi = Math.PI,
-			canvas = document.createElement('canvas');
+		var canvas = document.createElement('canvas'),
+			audioData = buffer.getChannelData(0),
+			glView = new TTable.GLLoopView(canvas);
 
 		document.getElementsByTagName('body')[0].appendChild(canvas);
-		canvas.width = 600;
-		canvas.height = 600;
-
-		// GL related
-		var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'),
-			glProgram = null,
-			fragmentShader = null,
-			vertexShader = null,
-			vertexPositionAttribute = null,
-			verticeBuffer = null,
-			// others
-			audioData = buffer.getChannelData(0),
-			audioLen = audioData.length,
-			i = 0,
-			dA = 0.001,
-			x, y, a, rad,
-			len = Math.floor((2 * pi) / dA);
-
-		function ampAt(ratio) {
-			return audioData[Math.round(ratio * (audioLen - 1))]
-		}
-
-		// setup GL
-		gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-
-		// setup shaders
-		vertexShader = gl.createShader(gl.VERTEX_SHADER);
-		fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-		// set shaders source
-		var vs_source = document.getElementById('shader-vs').innerHTML,
-			fs_source = document.getElementById('shader-fs').innerHTML;
-		gl.shaderSource(vertexShader, vs_source);
-		gl.shaderSource(fragmentShader, fs_source);
-		// compile them
-		gl.compileShader(vertexShader);
-		gl.compileShader(fragmentShader);
-		// attach shaders to a program
-		glProgram = gl.createProgram();
-		gl.attachShader(glProgram, vertexShader);
-		gl.attachShader(glProgram, fragmentShader);
-		// link and use that program
-		gl.linkProgram(glProgram);
-		gl.useProgram(glProgram);
-		// delete shaders and program 
-		// TODO: try to delete them right now, does it break?
-		/*gl.deleteShader(vertexShader);
-		gl.deleteShader(fragmentShader);
-		gl.deleteProgram(glProgram);*/
-		// setup buffers
-		var vertices = new Float32Array(len * 3),
-			verticeBuffer = gl.createBuffer();
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
-
-		vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
-		gl.enableVertexAttribArray(vertexPositionAttribute);
-		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
-		gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-		function updateVertices() {
-			for (i = 0; i < len; ++i) {
-				a = dA * i;
-				rad = 0.4 + 0.4 * ampAt(i / (len - 1)) + Math.random() * 0.2;
-				x = rad * Math.cos(a); // offset to center
-				y = rad * Math.sin(a);
-				vertices[3 * i] = x;
-				vertices[(3 * i) + 1] = y;
-				vertices[(3 * i) + 2] = 0;
-			}
-
-			// using gl.DYNAMIC_DRAW instead of STATIC_DRAW doesn't seem to make a difference...
-			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-			gl.drawArrays(gl.LINE_STRIP, 0, len);
-		}
+		
+		glView.init();
 
 		(function animLoop() {
-			updateVertices();
+			glView.update(audioData);
 			requestAnimationFrame(animLoop);
 		})();
 	});
