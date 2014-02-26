@@ -237,29 +237,35 @@ var drawSound3d = function() {
 		gl.deleteShader(fragmentShader);
 		gl.deleteProgram(glProgram);*/
 		// setup buffers
-		var vertices = [];
-		for (i = 0; i < len; ++i) {
-			a = dA * i;
-			rad = 0.2 + 0.8 * ampAt(i / (len - 1));
-			//rad = 0.8;
-			x = rad * Math.cos(a); // offset to center
-			y = rad * Math.sin(a);
-			vertices[3 * i] = x;
-			vertices[(3 * i) + 1] = y;
-			vertices[(3 * i) + 2] = 0;
-		}
-		verticeBuffer = gl.createBuffer();
+		var vertices = new Float32Array(len * 3),
+			verticeBuffer = gl.createBuffer();
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-		// draw
+
 		vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
 		gl.enableVertexAttribArray(vertexPositionAttribute);
 		gl.bindBuffer(gl.ARRAY_BUFFER, verticeBuffer);
 		gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-		gl.drawArrays(gl.LINE_STRIP, 0, len);
+			
+		function updateVertices() {
+			for (i = 0; i < len; ++i) {
+				a = dA * i;
+				rad = 0.4 + 0.4 * ampAt(i / (len - 1)) + Math.random() * 0.2;
+				x = rad * Math.cos(a); // offset to center
+				y = rad * Math.sin(a);
+				vertices[3 * i] = x;
+				vertices[(3 * i) + 1] = y;
+				vertices[(3 * i) + 2] = 0;
+			}
 
+			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+			gl.drawArrays(gl.LINE_STRIP, 0, len);
+		}
 
-
+		(function animLoop() {
+			updateVertices();
+			requestAnimationFrame(animLoop);
+		})();
 	});
 }
 
