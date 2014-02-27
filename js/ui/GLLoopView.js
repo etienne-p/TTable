@@ -57,14 +57,16 @@ TTable.GLLoopView = function(canvas) {
 	self.update = function(waveform_) {
 
 		var i = 0,
-			dA = 0.001, // delta angle
+			dA = 0.005, // delta angle
 			x, y, a, rad,
 			len = Math.floor((2 * Math.PI) / dA),
 			audioData = waveform_,
 			audioLen = audioData.length;
 
 		// TODO: appens once, shoud NOT check every time
-		if (!vertices) initVertices(len);
+		if (!vertices) {
+			initVertices(len);
+		}
 
 		function ampAt(ratio) {
 			return audioData[Math.round(ratio * (audioLen - 1))]

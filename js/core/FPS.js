@@ -2,9 +2,9 @@ TTable.FPS = function() {
 
 	var _paused = true,
 		_self = {},
-		_tick = new Signal(),
-		_paused = new Signal(),
-		_resumed = new Signal();
+		_tick = new TTable.Signal(),
+		_paused = new TTable.Signal(),
+		_resumed = new TTable.Signal();
 
 	function _loop() {
 		if (_paused) return;

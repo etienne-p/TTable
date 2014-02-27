@@ -61,10 +61,10 @@ var testScratch = function() {
 		pi = Math.PI,
 		setSpeed = function() {},
 		//polar = GeomUtil.cartesianToPolar,
-		dist = util.GeomUtil.distance;
+		dist = TTable.GeomUtil.distance;
 
 	function polar(pos) {
-		return util.GeomUtil.cartesianToPolar({
+		return TTable.GeomUtil.cartesianToPolar({
 			x: pos.x - radius, // TODO: find a proper way to manage relative coordinates
 			y: pos.y - radius
 		})
@@ -113,11 +113,11 @@ var testScratch = function() {
 	// AUDIO
 	audio.loadSample('media/loop.wav', function(buffer) {
 
-		var samplePlayer = new SamplePlayer(buffer.getChannelData(0), buffer.getChannelData(1)),
+		var samplePlayer = new TTable.SamplePlayer(buffer.getChannelData(0), buffer.getChannelData(1)),
 			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2);
 
 		scriptProcessor.onaudioprocess = samplePlayer.processAudio;
-		//scriptProcessor.connect(audio.getContext().destination);
+		scriptProcessor.connect(audio.getContext().destination);
 
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
@@ -183,12 +183,13 @@ var drawSound3d = function() {
 
 	audio.loadSample('media/loop.wav', function(buffer) {
 
-		var canvas = document.createElement('canvas'),
-			audioData = buffer.getChannelData(0),
+		var canvas = document.createElement('canvas');
+		document.getElementsByTagName('body')[0].appendChild(canvas);
+		canvas.width = canvas.height = 600;
+
+		var audioData = buffer.getChannelData(0),
 			glView = new TTable.GLLoopView(canvas);
 
-		document.getElementsByTagName('body')[0].appendChild(canvas);
-		
 		glView.init();
 
 		(function animLoop() {
@@ -199,4 +200,4 @@ var drawSound3d = function() {
 }
 
 
-window.onload = drawSound3d;
+window.onload = testScratch;
