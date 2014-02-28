@@ -1,97 +1,97 @@
-TTable.Mouse = function(isMobile_, element_) {
+TTable.Mouse = function(isMobile, element) {
 
 	// mouse move is a special case,
 	// other signals can be generated dynamically
 
-	var _self = {},
-		_data = [{
-			evt: isMobile_ ? 'touchstart' : 'mousedown',
+	var self = {},
+		data = [{
+			evt: isMobile ? 'touchstart' : 'mousedown',
 			as: 'down'
 		}, {
-			evt: isMobile_ ? 'touchend' : 'mouseup',
+			evt: isMobile ? 'touchend' : 'mouseup',
 			as: 'up'
 		}, {
 			evt: 'click',
 			as: 'click'
 		}],
-		_position = {
+		position = {
 			x: 0,
 			y: 0
 		},
-		_signals = {},
-		_handlers = {},
-		_mouseMoveSignal = new TTable.Signal(),
-		_xOffset = 0,
-		_yOffset = 0;
+		signals = {},
+		handlers = {},
+		mouseMoveSignal = new TTable.Signal(),
+		xOffset = 0,
+		yOffset = 0;
 
 	//-- init signals value
-	_mouseMoveSignal.value = _position;
+	mouseMoveSignal.value = position;
 
 	// dynamic signals / handlers generation
 	function getHandler(as) {
 		return function(evt) {
-			_signals[as].dispatch(_position);
+			signals[as].dispatch(position);
 		}
 	}
 	var as = null;
-	for (var i = _data.length - 1; i > -1; --i) {
-		as = _data[i].as;
-		_self[as] = _signals[as] = new TTable.Signal();
-		_self[as].value = _position;
-		_handlers[as] = getHandler(as);
+	for (var i = data.length - 1; i > -1; --i) {
+		as = data[i].as;
+		self[as] = signals[as] = new TTable.Signal();
+		self[as].value = position;
+		handlers[as] = getHandler(as);
 	}
 
 	//...
 
-	function _updateOffset() {
-		if (!element_.getBoundingClientRect) return;
-		var rect = element_.getBoundingClientRect();
-		_xOffset = rect.left;
-		_yOffset = rect.top;
+	function updateOffset() {
+		if (!element.getBoundingClientRect) return;
+		var rect = element.getBoundingClientRect();
+		xOffset = rect.left;
+		yOffset = rect.top;
 	}
 
 	//-- Event handlers
 
-	function _mouseMoveHandlerRegular(e) {
+	function mouseMoveHandlerRegular(e) {
 		e.preventDefault();
-		_position = {
-			x: e.pageX - _xOffset,
-			y: e.pageY - _yOffset
+		position = {
+			x: e.pageX - xOffset,
+			y: e.pageY - yOffset
 		};
-		_mouseMoveSignal.dispatch(_position);
+		mouseMoveSignal.dispatch(position);
 	}
 
-	function _mouseMoveHandlerIPad(e) {
+	function mouseMoveHandlerIPad(e) {
 		e.preventDefault();
-		_position = {
-			x: e.originalEvent.targetTouches[0].pageX - _xOffset,
-			y: e.originalEvent.targetTouches[0].pageY - _yOffset
+		position = {
+			x: e.originalEvent.targetTouches[0].pageX - xOffset,
+			y: e.originalEvent.targetTouches[0].pageY - yOffset
 		};
-		_mouseMoveSignal.dispatch(_position);
+		mouseMoveSignal.dispatch(position);
 	}
 
-	function _bind(val_, ctx_, evts_, handler_) {
-		var method = val_ ? ctx_.addEventListener : ctx_.removeEventListener;
-		if (Object.prototype.toString.call(evts_) == '[object Array]') {
-			var i = evts_.length;
-			while (i--) method.call(ctx_, evts_[i], handler_);
-		} else method.call(ctx_, evts_, handler_);
+	function bind(val, ctx, evts, handler) {
+		var method = val ? ctx.addEventListener : ctx.removeEventListener;
+		if (Object.prototype.toString.call(evts) == '[object Array]') {
+			var i = evts.length;
+			while (i--) method.call(ctx, evts[i], handler);
+		} else method.call(ctx, evts, handler);
 	}
 
 	//-- Platform specific config
-	var _mouseMoveHandler = isMobile_ ? _mouseMoveHandlerMobile : _mouseMoveHandlerRegular,
-		_mouseMoveEvent = isMobile_ ? ['touchstart', 'touchmove', 'touchend'] : 'mousemove';
+	var mouseMoveHandler = isMobile ? mouseMoveHandlerMobile : mouseMoveHandlerRegular,
+		mouseMoveEvent = isMobile ? ['touchstart', 'touchmove', 'touchend'] : 'mousemove';
 
 	//-- Exposed
-	_self.enabled = function(val_) {
-		_bind(val_, element_, _mouseMoveEvent, _mouseMoveHandler)
-		for (var i = _data.length - 1; i > -1; --i) {
-			_bind(val_, element_, _data[i].evt, _handlers[_data[i].as])
+	self.enabled = function(val) {
+		bind(val, element, mouseMoveEvent, mouseMoveHandler)
+		for (var i = data.length - 1; i > -1; --i) {
+			bind(val, element, data[i].evt, handlers[data[i].as])
 		}
-		if (val_) _updateOffset();
+		if (val) updateOffset();
 	}
 
-	_self.position = _mouseMoveSignal;
+	self.position = mouseMoveSignal;
 
-	return _self;
+	return self;
 }

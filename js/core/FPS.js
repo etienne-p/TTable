@@ -1,39 +1,49 @@
 TTable.FPS = function() {
 
-	var _paused = true,
-		_self = {},
-		_tick = new TTable.Signal(),
-		_paused = new TTable.Signal(),
-		_resumed = new TTable.Signal();
+	var paused = true,
+		self = {},
+		del = 0,
+		rate = 0,
+		time = 0,
+		tick = new TTable.Signal(),
+		paused = new TTable.Signal(),
+		resumed = new TTable.Signal();
 
-	function _loop() {
-		if (_paused) return;
-		_tick.dispatch();
-		requestTimeout(_loop, _del);
+	function loop() {
+		if (paused) return;
+		var now = Date.now();
+		tick.dispatch(now - time);
+		time = now;
+		requestTimeout(loop, del);
 	}
 
-	_self.setRate = function(n_) {
-		_del = Math.round(1000 / n_);
+	self.setRate = function(n) {
+		del = Math.round(1000 / (rate = n));
 	}
 
-	_self.enabled = function(val_) {
-		var val = val_ ? true : false;
-		if (_paused == !val) return;
+	self.getRate = function(){
+		return rate;
+	}
+
+	self.enabled = function(val) {
+		var val = val ? true : false;
+		if (paused == !val) return;
 		if (val) {
-			_paused = false;
-			_resumed.dispatch();
-			_loop();
+			time = Date.now();
+			paused = false;
+			resumed.dispatch();
+			loop();
 		} else {
-			_paused = true;
-			_paused.dispatch();
+			paused = true;
+			paused.dispatch();
 		}
 	}
 
-	_self.tick = _tick;
-	_self.paused = _paused;
-	_self.resumed = _resumed;
+	self.tick = tick;
+	self.paused = paused;
+	self.resumed = resumed;
 
-	_self.setRate(30);
+	self.setRate(30);
 
-	return _self;
+	return self;
 }

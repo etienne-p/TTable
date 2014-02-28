@@ -48,7 +48,7 @@ var testScratch = function() {
 	canvas = document.createElement('canvas'),
 	mouse = new TTable.Mouse(TTable.PlatformUtil.isMobile(), canvas),
 	disc = new TTable.Disc(canvas),
-	radius = 200;
+	radius = 400;
 
 	document.getElementsByTagName('body')[0].appendChild(canvas);
 	disc.setRadius(radius);
@@ -57,34 +57,32 @@ var testScratch = function() {
 	// translate mouse
 	var prevPosition,
 		dAngle = 0,
-		motorDAngle = 0.1,
-		pi = Math.PI,
+		motorAngularSpeed = 0,
+		PI = Math.PI,
 		setSpeed = function() {},
-		//polar = GeomUtil.cartesianToPolar,
+		cartesianToPolar = TTable.GeomUtil.cartesianToPolar,
 		dist = TTable.GeomUtil.distance;
 
 	function polar(pos) {
-		return TTable.GeomUtil.cartesianToPolar({
+		return cartesianToPolar({
 			x: pos.x - radius, // TODO: find a proper way to manage relative coordinates
 			y: pos.y - radius
-		})
+		});
 	}
 
-	function watchMouse() {
-
+	function watchMouse(dt) {
 		p = polar(mouse.position.value);
-		dAngle = (p.angle - prevPosition.angle) % (2 * pi);
-		if (dAngle > pi) dAngle -= 2 * pi;
-		else if (dAngle < -pi) dAngle += 2 * pi;
+		dAngle = (p.angle - prevPosition.angle) % (2 * PI);
+		if (dAngle > PI) dAngle -= 2 * PI;
+		else if (dAngle < -PI) dAngle += 2 * PI;
 		disc.angle += dAngle;
 		prevPosition = p;
 		disc.render();
-		setSpeed(dAngle / motorDAngle);
+		setSpeed(dAngle / (motorAngularSpeed * (dt / 1000)));
 	}
 
-	// extraire l'angle
-
-	function moveDisc() {
+	function moveDisc(dt) {
+		var motorDAngle = motorAngularSpeed * (dt / 1000);
 		disc.angle += motorDAngle + dAngle;
 		dAngle *= 0.9; // represents an accumulation between frames
 		disc.render();
@@ -118,6 +116,10 @@ var testScratch = function() {
 
 		scriptProcessor.onaudioprocess = samplePlayer.processAudio;
 		scriptProcessor.connect(audio.getContext().destination);
+
+		// 1 round = 1 loop
+		motorAngularSpeed = 2 * PI / (buffer.length / buffer.sampleRate); // radians per second
+		console.log('motorAngularSpeed: [' + motorAngularSpeed + ']');
 
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
