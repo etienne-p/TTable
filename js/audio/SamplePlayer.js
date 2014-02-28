@@ -33,12 +33,17 @@ TTable.SamplePlayer = function(left, right) {
 		cRate = rate;
 	};
 
+	function posRatio(){
+		return pos / len;
+	}
+
 	function setRate(arg) {
 		rate = arg
 	}
 
 	return {
 		processAudio: processAudio,
+		posRatio: posRatio,
 		setRate: setRate
 	}
 

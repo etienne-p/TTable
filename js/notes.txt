@@ -10,3 +10,8 @@ we doN't edit every module
 render waveform as an excitable array of particles
 exciter: playhead
 think of a cool fragment shader
+
+timing:$using FPS dt is not enough,
+we should set disc UI depending on audio:
+
+movement -> angle -> playback speed -> playhead position -> disc rotation

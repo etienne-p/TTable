@@ -2,8 +2,6 @@ TTable.FPS = function() {
 
 	var paused = true,
 		self = {},
-		del = 0,
-		rate = 0,
 		time = 0,
 		tick = new TTable.Signal(),
 		paused = new TTable.Signal(),
@@ -14,15 +12,7 @@ TTable.FPS = function() {
 		var now = Date.now();
 		tick.dispatch(now - time);
 		time = now;
-		requestTimeout(loop, del);
-	}
-
-	self.setRate = function(n) {
-		del = Math.round(1000 / (rate = n));
-	}
-
-	self.getRate = function(){
-		return rate;
+		requestAnimationFrame(loop);
 	}
 
 	self.enabled = function(val) {
@@ -42,8 +32,6 @@ TTable.FPS = function() {
 	self.tick = tick;
 	self.paused = paused;
 	self.resumed = resumed;
-
-	self.setRate(30);
 
 	return self;
 }

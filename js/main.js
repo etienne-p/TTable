@@ -75,7 +75,7 @@ var testScratch = function() {
 		dAngle = (p.angle - prevPosition.angle) % (2 * PI);
 		if (dAngle > PI) dAngle -= 2 * PI;
 		else if (dAngle < -PI) dAngle += 2 * PI;
-		disc.angle += dAngle;
+		//disc.angle += dAngle;
 		prevPosition = p;
 		disc.render();
 		setSpeed(dAngle / (motorAngularSpeed * (dt / 1000)));
@@ -83,9 +83,9 @@ var testScratch = function() {
 
 	function moveDisc(dt) {
 		var motorDAngle = motorAngularSpeed * (dt / 1000);
-		disc.angle += motorDAngle + dAngle;
+		//disc.angle += motorDAngle + dAngle;
 		dAngle *= 0.9; // represents an accumulation between frames
-		disc.render();
+		//disc.render();
 		setSpeed((motorDAngle + dAngle) / motorDAngle);
 	}
 
@@ -130,6 +130,13 @@ var testScratch = function() {
 			].join('<br />');
 			samplePlayer.setRate(arg);
 		}
+
+		// sync disc UI on audio stream
+		TTable.fps.tick.add(function() {
+			disc.angle = 2 * PI * samplePlayer.posRatio();
+			disc.render();
+		});
+
 	});
 }
 
