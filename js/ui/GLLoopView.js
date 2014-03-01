@@ -12,7 +12,8 @@ TTable.GLLoopView = function(canvas) {
 		vertexPositionAttribute = null,
 		verticeBuffer = null,
 		vertices = null,
-		verticeBuffer = null;
+		verticeBuffer = null,
+		angle = 0;
 
 	function glClear() {
 		gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -73,7 +74,7 @@ TTable.GLLoopView = function(canvas) {
 		}
 
 		for (; i < len; ++i) {
-			a = dA * i;
+			a = angle + dA * i;
 			rad = 0.4 + 0.4 * ampAt(i / (len - 1)) + Math.random() * 0.2;
 			x = rad * Math.cos(a); // offset to center
 			y = rad * Math.sin(a);
@@ -85,6 +86,11 @@ TTable.GLLoopView = function(canvas) {
 		// using gl.DYNAMIC_DRAW instead of STATIC_DRAW doesn't seem to make a difference...
 		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
 		gl.drawArrays(gl.LINE_STRIP, 0, len);
+	}
+
+	self.angle = function(val){
+		if (typeof val === 'number') angle = val;
+		return angle
 	}
 
 	return self;

@@ -5,27 +5,29 @@ var testScratch = function() {
 	TTable.fps = new TTable.FPS();
 
 	// setup disc
-	var info = document.getElementById('info');
-	canvas = document.createElement('canvas'),
-	disc = new TTable.Disc(canvas),
-	audio = TTable.AudioUtil,
-	radius = 400;
-
-	document.getElementsByTagName('body')[0].appendChild(canvas);
-	disc.setRadius(radius);
-	disc.render();
+	var info = document.getElementById('info'),
+		audio = TTable.AudioUtil;
 
 	// translate mouse
 	var ctrl = new TTable.GestureControl(TTable.mouse, TTable.fps.tick, {
-			x: window.innerWidth * 0.5,
-			y: window.innerHeight * 0.5
-		}, radius);
+		x: window.innerWidth * 0.5,
+		y: window.innerHeight * 0.5
+	}, window.innerWidth * 0.5);
 
 	// AUDIO
 	audio.loadSample('media/loop.wav', function(buffer) {
 
+		var canvas = document.createElement('canvas');
+		document.getElementsByTagName('body')[0].appendChild(canvas);
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+
 		var samplePlayer = new TTable.SamplePlayer(buffer.getChannelData(0), buffer.getChannelData(1)),
-			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2);
+			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2),
+			audioData = buffer.getChannelData(0),
+			glView = new TTable.GLLoopView(canvas);
+
+		glView.init();
 
 		scriptProcessor.onaudioprocess = samplePlayer.processAudio;
 		scriptProcessor.connect(audio.getContext().destination);
@@ -47,16 +49,15 @@ var testScratch = function() {
 
 		// sync disc UI on audio stream
 		TTable.fps.tick.add(function() {
-			disc.angle = 2 * Math.PI * samplePlayer.posRatio();
-			disc.render();
+			glView.angle(-1 * 2 * Math.PI * samplePlayer.posRatio());
+			glView.update(audioData);
 		});
-
 	});
 }
 
 var drawSound3d = function() {
 
-	audio.loadSample('media/loop.wav', function(buffer) {
+	TTable.AudioUtil.loadSample('media/loop.wav', function(buffer) {
 
 		var canvas = document.createElement('canvas');
 		document.getElementsByTagName('body')[0].appendChild(canvas);

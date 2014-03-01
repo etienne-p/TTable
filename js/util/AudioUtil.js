@@ -18,7 +18,7 @@ TTable.AudioUtil = {
 				alert('decodeAudioData failed!');
 			},
 			loadCompleteHandler = function() {
-				audio.getContext().decodeAudioData(req.response, callback_, onError);
+				TTable.AudioUtil.getContext().decodeAudioData(req.response, callback_, onError);
 			};
 		req.open('GET', url_, true);
 		req.responseType = 'arraybuffer';
