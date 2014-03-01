@@ -7,7 +7,7 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 		prevPosition = null,
 		dAngle = 0,
 		PI = Math.PI,
-		motorAngularSpeed =  0,
+		motorAngularSpeed =  1,
 		speed = new TTable.Signal(),
 		radius =  radius_ || 0,
 		center = center_ || {
@@ -18,8 +18,8 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 	//-- Helper
 	function polar(pos) {
 		return cartesianToPolar({
-			x: pos.x - radius + center.x,
-			y: pos.y - radius + center.y
+			x: pos.x - center.x,
+			y: pos.y - center.y
 		});
 	}
 
@@ -56,16 +56,16 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 	}
 
 	function toUserControl() {
-		mouse_.down.remove(toUserControlIf);
+		mouse_.down.remove(checkUserControl);
 		dAngle = 0;
-		prevPosition = polar(mouse.position.value);
+		prevPosition = polar(mouse_.position.value);
 		fpsTick_.remove(moveDisc);
 		fpsTick_.add(watchMouse);
 		mouse_.up.addOnce(toEngineControl);
 	}
 
 	function disable(){
-		mouse_.down.remove(toUserControlIf);
+		mouse_.down.remove(checkUserControl);
 		mouse_.up.remove(toEngineControl);
 		fpsTick_.remove(watchMouse);
 		fpsTick_.remove(moveDisc);
@@ -74,8 +74,18 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 	
 	return {
 		// properties
-		motorAngularSpeed: motorAngularSpeed,
-		radius: radius,
+		motorAngularSpeed: function(val){
+			if (typeof val === 'number') motorAngularSpeed = val;
+			return motorAngularSpeed;
+		},
+		center: function(val){
+			if (typeof val === 'object') center = val;
+			return center;
+		},
+		radius: function(val){
+			if (typeof val === 'number') radius = val;
+			return radius;
+		},
 		speed: speed,
 		// methods
 		toEngineControl: toEngineControl,
