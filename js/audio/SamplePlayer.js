@@ -3,6 +3,7 @@ TTable.SamplePlayer = function(left, right) {
 	var pos = 0,
 		len = left.length,
 		rate = 1,
+		amp = 0,
 		cRate = 1;
 
 	// interpolation requires accessing samples at potentially Math.ceil((len - 1).546))
@@ -18,6 +19,8 @@ TTable.SamplePlayer = function(left, right) {
 			outBufferR = e.outputBuffer.getChannelData(1),
 			bufLen = outBufferL.length,
 			d = rate, // depends on speed
+			acc = 0,
+			l, r,
 			alpha = 0.5; // interpolation
 
 		for (var i = 0; i < bufLen; ++i) {
@@ -25,11 +28,12 @@ TTable.SamplePlayer = function(left, right) {
 			d = (rate - cRate) * (i / bufLen) + cRate
 
 			alpha = pos - Math.floor(pos);
-			outBufferL[i] = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
-			outBufferR[i] = 0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]);
+			outBufferL[i] = l = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
+			outBufferR[i] = r =  0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]);
 			pos = (len + pos + d) % len;
+			acc += (l + r);
 		}
-
+		amp = acc / (bufLen * 2);
 		cRate = rate;
 	};
 
@@ -41,10 +45,15 @@ TTable.SamplePlayer = function(left, right) {
 		rate = arg
 	}
 
+	function getAmp() {
+		return amp;
+	}
+
 	return {
 		processAudio: processAudio,
 		posRatio: posRatio,
-		setRate: setRate
+		setRate: setRate,
+		getAmp: getAmp
 	}
 
 }

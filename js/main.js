@@ -19,8 +19,7 @@ var testScratch = function() {
 
 		var canvas = document.createElement('canvas');
 		document.getElementsByTagName('body')[0].appendChild(canvas);
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
+		canvas.style.position = 'fixed';
 
 		var samplePlayer = new TTable.SamplePlayer(buffer.getChannelData(0), buffer.getChannelData(1)),
 			scriptProcessor = audio.getContext().createScriptProcessor(1024, 0, 2),
@@ -50,8 +49,16 @@ var testScratch = function() {
 		// sync disc UI on audio stream
 		TTable.fps.tick.add(function() {
 			glView.angle(-1 * 2 * Math.PI * samplePlayer.posRatio());
+			glView.amp(1 + 50 * samplePlayer.getAmp());
 			glView.update(audioData);
 		});
+
+		function resizeHandler(){
+			glView.resize(window.innerWidth, window.innerHeight);
+		}
+
+		resizeHandler();
+		window.onresize = resizeHandler;
 	});
 }
 
