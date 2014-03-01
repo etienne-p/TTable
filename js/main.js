@@ -209,4 +209,4 @@ var drawSound3d = function() {
 }
 
 
-window.onload = testScratch;
+window.onload = drawSound3d;
