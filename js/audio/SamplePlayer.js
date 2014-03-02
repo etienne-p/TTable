@@ -31,7 +31,7 @@ TTable.SamplePlayer = function(left, right) {
 			outBufferL[i] = l = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
 			outBufferR[i] = r =  0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]);
 			pos = (len + pos + d) % len;
-			acc += (l + r);
+			acc += 	Math.abs(l) + Math.abs(r);
 		}
 		amp = acc / (bufLen * 2);
 		cRate = rate;

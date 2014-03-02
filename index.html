@@ -6,6 +6,10 @@
         <title>TTable</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        body {background: black;}
+        #info {color: white;}
+        </style>
     </head>
     <body>
 
@@ -16,19 +20,23 @@
         attribute vec3 aVertexPosition;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        varying mediump vec4 vColor;
+        const float PI = 3.1416;
+
         void main(void) {
             gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            float yo = 0.5 + atan(aVertexPosition.y, -aVertexPosition.x)/ (2.0 * PI);
+            vColor = vec4(yo, 0.0, 1.0 - yo, 1.0);
         }
         </script>
         <script id="shader-fs" type="x-shader/x-fragment">
         #ifdef GL_ES
         precision mediump float;
         #endif
-        const vec2 center = vec2(300.0, 300.0);
+        varying mediump vec4 vColor;
         void main(void) {
-            float dist = length(gl_FragCoord.xy - center);
-            //gl_FragColor =  vec4(1.0 - (dist / 200.0), 0, 0, 1);
-            gl_FragColor =  vec4(1.0, 0, 0, 1);
+            //float dist = length(gl_FragCoord.xy - center);
+            gl_FragColor =  vColor;
         }
         </script>
         

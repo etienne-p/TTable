@@ -17,9 +17,10 @@ TTable.GLLoopView = function(canvas) {
 		pMatrixUniform = null,
 		mvMatrix = mat4.create(),
 		mvMatrixUniform = null,
-		particles = null,
+		muls = null,
 		PI2 = 2 * Math.PI,
 		amp = 1,
+		amps = null,
 		angle = 0;
 
 	//-- Helpers
@@ -62,11 +63,27 @@ TTable.GLLoopView = function(canvas) {
 		gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 	}
 
-	function initParticles(numParticles_) {
-		particles = [];
+	function initMuls(len) {
+		muls = [];
 		var i = 0;
-		for (; i < numParticles_; ++i) {
-			particles[i] = 0.2 + 0.8 * Math.cos(0.5 * (i / numParticles_) * PI2);
+		for (; i < len; ++i) {
+			muls[i] = 0.2 + 0.8 * Math.cos(0.5 * (i / len) * PI2);
+		}
+	}
+
+	function initAmps(len, audioData) {
+		amps = [];
+		var i = 0,
+			j = 0,
+			lenn = 0,
+			acc = 0,
+			chunkSize = Math.floor(audioData.length / len);
+		for (; i < len; ++i) {
+			acc = 0;
+			j = Math.floor(audioData.length * i / len);
+			lenn = j + chunkSize;
+			for (; j < lenn; ++j) acc += Math.abs(audioData[j]);
+			amps[i] = acc / chunkSize;
 		}
 	}
 
@@ -86,49 +103,85 @@ TTable.GLLoopView = function(canvas) {
 	self.update = function(waveform_) {
 
 		var i = 0,
-			dA = 0.001, // delta angle
-			x, y, a, rad, ind, p,
+			vertexIndex = -1,
+			dA = 0.05, // delta angle
+			dda = dA * 0.4,
+			a = 0,
+			rad = 0.3,
+			radAmp = 0,
+			cacheIndex = 0,
 			len = Math.floor(PI2 / dA),
 			audioData = waveform_,
-			pOffset = Math.floor(len * (angle / PI2)),
-			audioLen = audioData.length;
+			cacheOffset = Math.floor(len * (angle / PI2)),
+			audioLen = audioData.length,
+			cosmin = 0,
+			cosmax = 0,
+			sinmin = 0,
+			sinmax = 0,
+			radMax = 0,
+			radMin = 0;
 
 		// TODO: appens once, shoud NOT check every time
 		if (!vertices) {
-			initVertices(len);
-			initParticles(len);
+			initVertices(len * 6);
+			initMuls(len);
+			initAmps(len, waveform_);
 		}
-		p = particles;
-
-		function ampAt(ratio) {
-			return audioData[Math.round(ratio * (audioLen - 1))]
-		}
-
-		// tmp excitation
-		//p[Math.floor(Math.random() * len)] = 1 + Math.random();
 
 		for (i = 0; i < len; ++i) {
 			a = angle + dA * i;
-			ind = (i + pOffset) % len;
-			rad = 0.5 + 0.2 * ampAt(i / (len - 1)) * (1 + p[ind]) * amp/* + Math.random() * 0.2*/ ;
-			//p[ind] *= 0.99;
-			x = rad * Math.cos(a); // offset to center
-			y = rad * Math.sin(a);
-			vertices[3 * i] = x;
-			vertices[(3 * i) + 1] = y;
-			vertices[(3 * i) + 2] = 0;
+			cacheIndex = (i + cacheOffset) % len;
+			radAmp = amps[i] * (1 + muls[cacheIndex]) * amp;
+
+			radMin = rad - radAmp * 0.05;
+			radMax = rad + radAmp * 0.4;
+
+			cosmin = Math.cos(a - dda);
+			cosmax = Math.cos(a + dda);
+			sinmin = Math.sin(a - dda);
+			sinmax = Math.sin(a + dda);
+
+			// bottom left
+			vertices[++vertexIndex] = radMin * cosmin;
+			vertices[++vertexIndex] = radMin * sinmin;
+			vertices[++vertexIndex] = 0; // z
+
+			// top left
+			vertices[++vertexIndex] = radMax * cosmin;
+			vertices[++vertexIndex] = radMax * sinmin;
+			vertices[++vertexIndex] = 0; // z
+
+			// top right
+			vertices[++vertexIndex] = radMax * cosmax;
+			vertices[++vertexIndex] = radMax * sinmax;
+			vertices[++vertexIndex] = 0; // z
+
+			// bottom right
+			vertices[++vertexIndex] = radMin * cosmax;
+			vertices[++vertexIndex] = radMin * sinmax;
+			vertices[++vertexIndex] = 0; // z
+
+			// bottom left
+			vertices[++vertexIndex] = radMin * cosmin;
+			vertices[++vertexIndex] = radMin * sinmin;
+			vertices[++vertexIndex] = 0; // z
+
+			// top right
+			vertices[++vertexIndex] = radMax * cosmax;
+			vertices[++vertexIndex] = radMax * sinmax;
+			vertices[++vertexIndex] = 0; // z
+
 		}
 
 		// using gl.DYNAMIC_DRAW instead of STATIC_DRAW doesn't seem to make a difference...
 		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-		gl.drawArrays(gl.LINE_STRIP, 0, len);
+		gl.drawArrays(gl.TRIANGLES, 0, len * 6);
 	}
 
 	self.resize = function(w_, h_) {
 		canvas.width = w_;
 		canvas.height = h_;
 		gl.viewport(0, 0, canvas.width, canvas.height);
-		// mat4.perspective(out, fovy, aspect, near, far) 
 		mat4.perspective(pMatrix, Math.PI * 0.25, canvas.width / canvas.height, 0.1, 100.0);
 		mat4.identity(mvMatrix);
 		mat4.translate(mvMatrix, mvMatrix, [0, 0, -2]);
