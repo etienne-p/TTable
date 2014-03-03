@@ -15,7 +15,7 @@ var testScratch = function() {
 	}, window.innerWidth * 0.5);
 
 	// AUDIO
-	audio.loadSample('media/loop.wav', function(buffer) {
+	audio.loadSample('media/loop2.wav', function(buffer) {
 
 		var canvas = document.createElement('canvas');
 		document.getElementsByTagName('body')[0].appendChild(canvas);
