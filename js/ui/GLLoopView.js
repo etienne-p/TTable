@@ -104,13 +104,13 @@ TTable.GLLoopView = function(canvas) {
 
 		var i = 0,
 			vertexIndex = -1,
-			dA = 0.05, // delta angle
+			dA = 0.1, // delta angle
 			dda = dA * 0.4,
 			a = 0,
 			rad = 0.3,
 			radAmp = 0,
 			cacheIndex = 0,
-			len = Math.floor(PI2 / dA),
+			len = Math.ceil(PI2 / dA),
 			audioData = waveform_,
 			cacheOffset = Math.floor(len * (angle / PI2)),
 			audioLen = audioData.length,
