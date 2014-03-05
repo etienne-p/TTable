@@ -104,7 +104,7 @@ TTable.GLLoopView = function(canvas) {
 
 		var i = 0,
 			vertexIndex = -1,
-			dA = 0.1, // delta angle
+			dA = 0.02, // delta angle
 			dda = dA * 0.4,
 			a = 0,
 			rad = 0.3,
