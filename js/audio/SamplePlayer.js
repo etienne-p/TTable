@@ -18,19 +18,15 @@ TTable.SamplePlayer = function(left, right) {
 		var outBufferL = e.outputBuffer.getChannelData(0),
 			outBufferR = e.outputBuffer.getChannelData(1),
 			bufLen = outBufferL.length,
-			d = rate, // depends on speed
 			acc = 0,
 			l, r,
 			alpha = 0.5; // interpolation
 
 		for (var i = 0; i < bufLen; ++i) {
-
-			d = (rate - cRate) * (i / bufLen) + cRate
-
 			alpha = pos - Math.floor(pos);
 			outBufferL[i] = l = 0.5 * (alpha * left[Math.floor(pos)] + (1 - alpha) * left[Math.ceil(pos)]);
 			outBufferR[i] = r =  0.5 * (alpha * right[Math.floor(pos)] + (1 - alpha) * right[Math.ceil(pos)]);
-			pos = (len + pos + d) % len;
+			pos = (len + pos + ((rate - cRate) * (i / bufLen) + cRate)) % len;
 			acc += 	Math.abs(l) + Math.abs(r);
 		}
 		amp = acc / (bufLen * 2);
