@@ -38,7 +38,7 @@ TTable.SamplePlayer = function(left, right) {
 	}
 
 	function setRate(arg) {
-		rate = arg
+		rate = arg;
 	}
 
 	function getAmp() {
