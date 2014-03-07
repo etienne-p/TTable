@@ -32,8 +32,7 @@ var testScratch = function() {
 		scriptProcessor.connect(audio.getContext().destination);
 
 		// 1 round = 1 loop
-		ctrl.motorAngularSpeed(2 * Math.PI / (buffer.length / buffer.sampleRate)); // radians per second
-		console.log('motorAngularSpeed: [' + ctrl.motorAngularSpeed() + ']');
+		ctrl.loopAngularSpeed(2 * Math.PI / (buffer.length / buffer.sampleRate)); // radians per second
 
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
@@ -53,12 +52,28 @@ var testScratch = function() {
 			glView.update(audioData);
 		});
 
-		function resizeHandler(){
+		function resizeHandler() {
 			glView.resize(window.innerWidth, window.innerHeight);
 		}
 
 		resizeHandler();
 		window.onresize = resizeHandler;
+
+		// add GUI, dat.gui is designed to operate on public fields
+		// to fit with our design, we introduce a mock object
+		var gui = new dat.GUI(),
+			mock = {
+				friction: 0.9,
+				angularSpeedMul: 1
+			};
+		gui.add(mock, 'friction', 0, 1).onChange(function(newValue) {
+			ctrl.friction(newValue);
+		});
+		gui.add(mock, 'angularSpeedMul', -2, 2).onChange(function(newValue) {
+			ctrl.angularSpeedMul(newValue);
+		});
+
+
 	});
 }
 

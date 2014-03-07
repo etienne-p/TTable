@@ -7,7 +7,9 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 		prevPosition = null,
 		dAngle = 0,
 		PI = Math.PI,
-		motorAngularSpeed =  1,
+		loopAngularSpeed =  1,
+		angularSpeedMul = 1,
+		friction = 0.9
 		speed = new TTable.Signal(),
 		radius =  radius_ || 0,
 		center = center_ || {
@@ -34,14 +36,14 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 		if (dAngle > PI) dAngle -= 2 * PI;
 		else if (dAngle < -PI) dAngle += 2 * PI;
 		prevPosition = p;
-		speed.dispatch(dAngle / (motorAngularSpeed * (dt / 1000)));
+		speed.dispatch(dAngle / (loopAngularSpeed * (dt / 1000)));
 	}
 
 	//-- Handle motor control
 	function moveDisc(dt) {
-		var motorDAngle = motorAngularSpeed * (dt / 1000);
-		dAngle *= 0.9;
-		speed.dispatch((motorDAngle + dAngle) / motorDAngle);
+		var motorDAngle = loopAngularSpeed * (dt / 1000);
+		dAngle *= friction;
+		speed.dispatch(angularSpeedMul * (motorDAngle + dAngle) / motorDAngle);
 	}
 
 	function toEngineControl() {
@@ -74,9 +76,14 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 	
 	return {
 		// properties
-		motorAngularSpeed: function(val){
-			if (typeof val === 'number') motorAngularSpeed = val;
-			return motorAngularSpeed;
+		// TODO: refactor, repetitive accessors
+		loopAngularSpeed: function(val){
+			if (typeof val === 'number') loopAngularSpeed = val;
+			return loopAngularSpeed;
+		},
+		angularSpeedMul: function(val){
+			if (typeof val === 'number') angularSpeedMul = val;
+			return angularSpeedMul;
 		},
 		center: function(val){
 			if (typeof val === 'object') center = val;
@@ -85,6 +92,10 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 		radius: function(val){
 			if (typeof val === 'number') radius = val;
 			return radius;
+		},
+		friction: function(val){
+			if (typeof val === 'number') friction = val;
+			return friction;
 		},
 		speed: speed,
 		// methods
