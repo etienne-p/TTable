@@ -1,20 +1,14 @@
 var testScratch = function() {
 
-	// setup core
 	TTable.mouse = new TTable.Mouse(TTable.PlatformUtil.isMobile(), document),
 	TTable.fps = new TTable.FPS();
 
-	// setup disc
-	var info = document.getElementById('info'),
-		audio = TTable.AudioUtil;
+	var audio = TTable.AudioUtil,
+		ctrl = new TTable.GestureControl(TTable.mouse, TTable.fps.tick, {
+			x: window.innerWidth * 0.5,
+			y: window.innerHeight * 0.5
+		}, window.innerWidth * 0.5);
 
-	// translate mouse
-	var ctrl = new TTable.GestureControl(TTable.mouse, TTable.fps.tick, {
-		x: window.innerWidth * 0.5,
-		y: window.innerHeight * 0.5
-	}, window.innerWidth * 0.5);
-
-	// AUDIO
 	audio.loadSample('media/loop2.wav', function(buffer) {
 
 		var canvas = document.createElement('canvas');
@@ -37,7 +31,6 @@ var testScratch = function() {
 		window.xxx = scriptProcessor; // prevent buggy garbage collection
 
 		ctrl.speed.add(function(arg) {
-			info.innerHTML = 'playbackRate: ' + arg;
 			samplePlayer.setRate(arg);
 		});
 
@@ -54,6 +47,11 @@ var testScratch = function() {
 
 		function resizeHandler() {
 			glView.resize(window.innerWidth, window.innerHeight);
+			ctrl.center({
+					x: window.innerWidth * 0.5,
+					y: window.innerHeight * 0.5
+				});
+			ctrl.radius(window.innerWidth * 0.5);
 		}
 
 		resizeHandler();
@@ -72,30 +70,7 @@ var testScratch = function() {
 		gui.add(mock, 'angularSpeedMul', -2, 2).onChange(function(newValue) {
 			ctrl.angularSpeedMul(newValue);
 		});
-
-
 	});
 }
-
-var drawSound3d = function() {
-
-	TTable.AudioUtil.loadSample('media/loop.wav', function(buffer) {
-
-		var canvas = document.createElement('canvas');
-		document.getElementsByTagName('body')[0].appendChild(canvas);
-		canvas.width = canvas.height = 600;
-
-		var audioData = buffer.getChannelData(0),
-			glView = new TTable.GLLoopView(canvas);
-
-		glView.init();
-
-		(function animLoop() {
-			glView.update(audioData);
-			requestAnimationFrame(animLoop);
-		})();
-	});
-}
-
 
 window.onload = testScratch;
