@@ -1,37 +1,37 @@
 TTable.FPS = function() {
+	this._pausedFlag = true;
+	this._time = 0;
+	this.tick = new TTable.Signal();
+	this.paused = new TTable.Signal();
+	this.resumed = new TTable.Signal();
 
-	var paused = true,
-		self = {},
-		time = 0,
-		tick = new TTable.Signal(),
-		paused = new TTable.Signal(),
-		resumed = new TTable.Signal();
+	this._loop = this._loop.bind(this);
+}
 
-	function loop() {
-		if (paused) return;
+TTable.FPS.prototype = {
+
+	constructor: TTable.FPS,
+
+	_loop: function() {
+		if (this._pausedFlag) return;
 		var now = Date.now();
-		tick.dispatch(now - time);
-		time = now;
-		requestAnimationFrame(loop);
-	}
+		this.tick.dispatch(now - this._time);
+		this._time = now;
+		requestAnimationFrame(this._loop);
+	},
 
-	self.enabled = function(val) {
-		var val = val ? true : false;
-		if (paused == !val) return;
+	enabled: function(val) {
+
+		val = val ? true : false;
+		if (this._pausedFlag == !val) return;
 		if (val) {
-			time = Date.now();
-			paused = false;
-			resumed.dispatch();
-			loop();
+			this._time = Date.now();
+			this._pausedFlag = false;
+			this.resumed.dispatch();
+			this._loop();
 		} else {
-			paused = true;
-			paused.dispatch();
+			this._pausedFlag = true;
+			this.paused.dispatch();
 		}
 	}
-
-	self.tick = tick;
-	self.paused = paused;
-	self.resumed = resumed;
-
-	return self;
 }
