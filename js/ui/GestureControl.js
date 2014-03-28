@@ -18,16 +18,16 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 		};
 
 	//-- Helper
-	function polar(pos) {
+	function polar(x, y) {
 		return cartesianToPolar({
-			x: pos.x - center.x,
-			y: pos.y - center.y
+			x: x - center.x,
+			y: y - center.y
 		});
 	}
 
 	//-- Handle user control
 	function watchMouse(dt) {
-		p = polar(mouse_.position.value);
+		p = polar(mouse_.x, mouse_.y);
 		if (p.radius > radius) {
 			moveDisc(); // something should happen this tick
 			toEngineControl();
@@ -54,13 +54,13 @@ TTable.GestureControl = function(mouse_, fpsTick_, center_, radius_) {
 	}
 
 	function checkUserControl() {
-		if (polar(mouse_.position.value).radius < radius) toUserControl();
+		if (polar(mouse_.x, mouse_.y).radius < radius) toUserControl();
 	}
 
 	function toUserControl() {
 		mouse_.down.remove(checkUserControl);
 		dAngle = 0;
-		prevPosition = polar(mouse_.position.value);
+		prevPosition = polar(mouse_.x, mouse_.y);
 		fpsTick_.remove(moveDisc);
 		fpsTick_.add(watchMouse);
 		mouse_.up.addOnce(toEngineControl);
